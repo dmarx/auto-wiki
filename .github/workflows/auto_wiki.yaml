@@ -6,12 +6,9 @@ on:
     branches: [ main ]
     paths:
       - '**.md'
-      - '!wiki/**.md'  # Don't trigger on wiki files themselves
+      - '.github/workflows/auto_wiki.yaml'
   pull_request:
     branches: [ main ]
-    paths:
-      - '**.md'
-      - '!wiki/**.md'
   issues:
     types: [opened, reopened]  # Trigger on issue creation/reopening for task processing
 
