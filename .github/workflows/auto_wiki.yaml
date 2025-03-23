@@ -6,19 +6,13 @@ on:
     branches: [ main ]
     paths:
       - '**.md'
-      - '!wiki/**.md'  # Don't trigger on wiki files
-  pull_request:
-    branches: [ main ]
-    paths:
-      - '**.md'
-      - '!wiki/**.md'
   schedule:
     - cron: '*/30 * * * *'  # Run every 30 minutes to process tasks
 
 jobs:
   # Job 1: Find wiki links and create tasks (runs on file changes)
   create-tasks:
-    if: github.event_name == 'push' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
       issues: write
@@ -40,31 +34,27 @@ jobs:
         pip install -r requirements.txt
     
     - name: Find changed markdown files
-      if: github.event_name == 'push' || github.event_name == 'pull_request'
       id: changed-files
       uses: tj-actions/changed-files@v37
       with:
         files: |
           **/*.md
-          **/*.markdown
-          !wiki/**/*.md
     
     - name: Create wiki tasks for changed files
-      if: github.event_name == 'push' || github.event_name == 'pull_request'
+      if: github.event_name == 'push'
       run: |
         echo "Changed files: ${{ steps.changed-files.outputs.all_changed_files }}"
         python scripts/create_wiki_tasks.py process_changed_files ${{ steps.changed-files.outputs.all_changed_files }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    
-    - name: Create wiki tasks for all files (manual trigger)
+
+    - name: Create wiki tasks for all .md files (manual trigger)
       if: github.event_name == 'workflow_dispatch'
       run: |
         # Find and process all non-wiki markdown files
-        find . -type f -name "*.md" -not -path "./wiki/*" -print0 | xargs -0 python scripts/create_wiki_tasks.py process_changed_files
+        find . -type f -name "*.md" -print0 | xargs -0 python scripts/create_wiki_tasks.py process_changed_files
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
 
   # Job 2: Process pending wiki tasks (runs on schedule or manual trigger)
   process-tasks:
