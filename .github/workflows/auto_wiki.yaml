@@ -4,8 +4,6 @@ on:
   workflow_dispatch:  # Manual trigger
   push:
     branches: [ main ]
-    paths:
-      - '**.md'
   schedule:
     - cron: '*/30 * * * *'  # Run every 30 minutes to process tasks
 
