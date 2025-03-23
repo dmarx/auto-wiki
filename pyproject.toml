@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "auto-wiki"
+version = "0.1.0"
+description = "System to automatically generate wiki content from wiki-style links"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+dependencies = [
+    "fire>=0.5.0",
+    "loguru>=0.6.0",
+    "PyGithub>=2.1.0",
+    "duckduckgo_search>=3.9.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "black>=22.1.0",
+    "flake8>=4.0.0",
+    "mypy>=0.931",
+]
+
+[project.scripts]
+auto-wiki = "src.main:main"
+
+[tool.setuptools]
+packages = ["src"]
+
+[tool.black]
+line-length = 88
+target-version = ["py310"]
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
