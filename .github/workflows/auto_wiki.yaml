@@ -49,9 +49,10 @@ jobs:
     - name: Create wiki tasks for all .md files (manual trigger)
       if: github.event_name == 'workflow_dispatch'
       run: |
-        # Find and process all non-wiki markdown files
-        find . -type f -name '*.md' -print0 
-        find . -type f -name '*.md' -print0 | xargs -0 python scripts/create_wiki_tasks.py process_changed_files
+        # Find and process all non-wiki markdown files        
+        find . -type f -name "*.md" > md_files.txt
+        cat md_files.txt
+        python scripts/create_wiki_tasks.py process_changed_files $(cat md_files.txt)
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
