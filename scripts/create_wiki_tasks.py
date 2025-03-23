@@ -228,10 +228,12 @@ def process_changed_files(
         Dictionary with processing results
     """
     logger.info(f"Processing {len(file_paths)} files")
+    logger.info(f"{file_paths}")
     
     # Process each file
     results = []
     for file_path in file_paths:
+        logger.info(f"Processing {file_path}...")
         if file_path.lower().endswith(('.md', '.markdown')):
             result = process_file(
                 file_path=file_path,
