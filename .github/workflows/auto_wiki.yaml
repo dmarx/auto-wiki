@@ -10,7 +10,7 @@ on:
 jobs:
   # Job 1: Find wiki links and create tasks (runs on file changes)
   create-tasks:
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     permissions:
       issues: write
