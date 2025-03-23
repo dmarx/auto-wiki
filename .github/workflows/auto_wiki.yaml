@@ -91,5 +91,5 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "chore: executed miscellaneous operation"
+      with:
+        commit_message: "chore: expanded wiki"
