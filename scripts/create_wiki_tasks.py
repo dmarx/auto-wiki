@@ -15,19 +15,31 @@ from gh_store.core.store import GitHubStore
 from gh_store.core.exceptions import ObjectNotFound
 
 
-def extract_wiki_links(content: str) -> set[str]:
-    """
-    Extract all unique wiki links from content.
-    
-    Args:
-        content: The markdown content to parse
-        
-    Returns:
-        A set of unique wiki link titles
-    """
-    pattern = r"\[\[(.*?)\]\]"
-    matches = re.findall(pattern, content)
-    return set(matches)
+
+def clean_links(wikilinks, collect_aliases=False):
+    """canonicalize aliases, standardize case"""
+    if collect_aliases:
+        raise NotImplemented
+    outv = []
+    for link in wikilinks:
+        if '|' in link:
+            try:
+                link, alias = link.split('|')
+            except:
+                print(link)
+                raise
+        outv.append(link.lower())
+    return outv
+
+links_pat=re.compile("\[\[(.+?)\]\]")
+
+def get_wikilinks(text):
+    matches = re.findall(links_pat, text)
+    if not matches:
+        return
+    matches = clean_links(matches)
+    logger.info(f"Links detected: {matches}")
+    return matches
 
 
 def find_missing_wiki_pages(
