@@ -40,7 +40,6 @@ jobs:
       with:
         files: |
           **/*.md
-          !wiki/**/*.md
     
     - name: Process changed files
       if: steps.changed-files.outputs.any_changed == 'true'
