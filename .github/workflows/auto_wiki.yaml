@@ -95,11 +95,19 @@ jobs:
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Wiki Bot"
         
-        # Check if there are any changes to commit
-        if git diff --quiet wiki/; then
-          echo "No wiki changes to commit"
-        else
+        # Check if wiki directory exists
+        if [ -d "wiki" ]; then
+          # Check if there are changes to commit
           git add wiki/
-          git commit -m "Auto-generate wiki content [skip ci]"
-          git push
+          git status --porcelain wiki/ | grep -q "^M"
+          
+          if [ $? -eq 0 ]; then
+            # Changes detected
+            git commit -m "Auto-generate wiki content [skip ci]"
+            git push
+          else
+            echo "No wiki changes to commit"
+          fi
+        else
+          echo "Wiki directory not found"
         fi
