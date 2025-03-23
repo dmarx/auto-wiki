@@ -1,0 +1,137 @@
+name: Auto Wiki Generator
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '**.md'
+      - '!wiki/**.md'  # Don't trigger on wiki files themselves
+  pull_request:
+    branches: [ main ]
+    paths:
+      - '**.md'
+      - '!wiki/**.md'
+  issues:
+    types: [opened, reopened]  # Trigger on issue creation/reopening for task processing
+
+jobs:
+  # Job 1: Identify wiki links and create task issues
+  find-wiki-links:
+    if: "!contains(github.event.issue.labels.*.name, 'task')"  # Skip if this is a task issue
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Fetch all history to determine changes
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install fire loguru PyGithub duckduckgo_search
+    
+    - name: Find changed markdown files
+      id: changed-files
+      uses: tj-actions/changed-files@v37
+      with:
+        files: |
+          **/*.md
+          !wiki/**/*.md
+    
+    - name: Process changed files
+      if: steps.changed-files.outputs.any_changed == 'true'
+      run: |
+        python -m src.main process_changed_files ${{ steps.changed-files.outputs.all_changed_files }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Job 2: Process task issues to generate wiki content
+  process-task:
+    if: contains(github.event.issue.labels.*.name, 'task')  # Only run for task issues
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: write
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install fire loguru duckduckgo_search
+    
+    - name: Process task
+      run: |
+        mkdir -p wiki
+        mkdir -p prompts
+        
+        # Ensure system prompt exists
+        if [ ! -f "prompts/system_prompt.md" ]; then
+          echo "Creating default system prompt"
+          mkdir -p prompts
+          cat > prompts/system_prompt.md << 'EOF'
+You are a wiki content creator that writes comprehensive, informative articles on various topics. Your task is to create a well-structured wiki page based on the provided search results.
+
+Follow these guidelines when creating wiki content:
+
+1. Begin with a clear, concise introduction that defines the topic.
+2. Structure the content with appropriate headings (using Markdown # syntax).
+3. Include relevant facts, history, context, and explanations from the search results.
+4. Maintain a neutral, objective tone throughout.
+5. Format the content using Markdown for readability.
+6. Include internal wiki links in [[double brackets]] when referring to other potentially relevant topics.
+7. Be comprehensive but concise - focus on the most important information.
+8. If the search results contain conflicting information, acknowledge this and present the different perspectives.
+9. End with a brief conclusion summarizing the key points.
+10. If appropriate, include a "See Also" section with related topics formatted as [[wiki links]].
+
+Your goal is to create a valuable reference article that would fit well in a knowledge wiki.
+EOF
+        fi
+        
+        # Process the task
+        RESULT=$(python scripts/process_task.py --config "${{ github.event.issue.body }}")
+        echo "$RESULT" > task_result.txt
+        
+        # Comment result on the issue
+        gh issue comment "$ISSUE_NUMBER" --body "$(cat task_result.txt)" --repo "$GITHUB_REPOSITORY"
+        
+        # Close the issue if successful
+        if ! grep -q "ERROR:" task_result.txt; then
+          gh issue close "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY"
+        else
+          echo "Task processing failed, keeping issue open"
+        fi
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        ISSUE_NUMBER: ${{ github.event.issue.number }}
+    
+    - name: Commit wiki changes
+      if: github.event_name == 'issues' && !contains(github.event.issue.labels.*.name, 'error')
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Wiki Bot"
+        
+        # Check if there are any changes to commit
+        if git diff --quiet wiki/; then
+          echo "No wiki changes to commit"
+        else
+          git add wiki/
+          git commit -m "Auto-generate wiki content for ${{ github.event.issue.title }} [skip ci]"
+          git push
+        fi
