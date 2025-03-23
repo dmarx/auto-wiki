@@ -50,7 +50,7 @@ jobs:
       if: github.event_name == 'workflow_dispatch'
       run: |
         # Find and process all non-wiki markdown files
-        find . -type f -name "*.md" -print0 | xargs -0 python scripts/create_wiki_tasks.py process_changed_files
+        find . -type f -name "**/*.md" -print0 | xargs -0 python scripts/create_wiki_tasks.py process_changed_files
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
