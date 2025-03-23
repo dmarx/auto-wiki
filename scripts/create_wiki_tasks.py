@@ -31,7 +31,7 @@ def clean_links(wikilinks, collect_aliases=False):
         outv.append(link.lower())
     return outv
 
-links_pat=re.compile("\[\[(.+?)\]\]")
+links_pat=re.compile(r"\[\[(.+?)\]\]")
 
 def get_wikilinks(text):
     matches = re.findall(links_pat, text)
