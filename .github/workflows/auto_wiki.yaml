@@ -89,25 +89,7 @@ jobs:
         python scripts/process_wiki_tasks.py process --limit 5
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    
-    - name: Commit wiki changes
-      run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Wiki Bot"
-        
-        # Check if wiki directory exists
-        if [ -d "wiki" ]; then
-          # Check if there are changes to commit
-          git add wiki/
-          git status --porcelain wiki/ | grep -q "^M"
-          
-          if [ $? -eq 0 ]; then
-            # Changes detected
-            git commit -m "Auto-generate wiki content [skip ci]"
-            git push
-          else
-            echo "No wiki changes to commit"
-          fi
-        else
-          echo "Wiki directory not found"
-        fi
+
+    - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: executed miscellaneous operation"
