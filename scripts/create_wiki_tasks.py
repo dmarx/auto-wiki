@@ -13,6 +13,7 @@ import fire
 from loguru import logger
 from gh_store.core.store import GitHubStore
 from gh_store.core.exceptions import ObjectNotFound
+from github import UnknownObjectException
 
 
 def clean_links(wikilinks, collect_aliases=False):
@@ -149,11 +150,14 @@ def create_wiki_task(
     try:
         # First check if object already exists
         try:
-            store.get(topic)
+            #store.get(topic) # seems this isn't a reliable approach. throws ObjectNotFound every time? we can just look for the label directly.
+            #existing_labels = {label.name for label in self.repo.get_labels()}
+            label = store.repo.get_label(f"UID:{topic.strip()}")
+            
             # Object exists
             logger.info(f"Task already exists for topic: {topic}")
             return {"topic": topic, "status": "existing_task", "object_id": topic}
-        except ObjectNotFound:
+        except ObjectNotFound, UnknownObjectException:
             # Object doesn't exist, create it
             obj = store.create(topic, task_config)
             # get issue, set  'task' label...
