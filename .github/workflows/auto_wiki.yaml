@@ -5,8 +5,7 @@ on:
   push:
     branches: [ main ]
     paths: [ '*.md', 'wiki/*.md' ]
-  schedule:
-    - cron: '*/30 * * * *'  # Run every 30 minutes to process tasks
+
 
 jobs:
   # Job 1: Find wiki links and create tasks (runs on file changes)
