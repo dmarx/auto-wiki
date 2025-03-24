@@ -49,7 +49,7 @@ def get_pending_wiki_tasks():
         direction='asc',
     ):
         labels = [label.name for label in issue.labels]
-        if "wontfix" in labels:
+        if ("wontfix" in labels) or ("duplicate" in labels):
             continue
         if "deprioritized" in labels:
             deprioritized.append(issue)
