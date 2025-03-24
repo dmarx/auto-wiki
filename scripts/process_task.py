@@ -20,7 +20,7 @@ with Path("prompts/system_prompt.md").open() as f:
 
 def with_prompt(
   content: str,
-  prompt_path: str|path|None = None,
+  prompt_path: str|Path|None = None,
   max_len: int=1024,
 ):
   prompt = ''
