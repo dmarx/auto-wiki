@@ -116,6 +116,7 @@ def main(issue_number):
     op = OPERATORS[config.operator]
     result = op(**config.kwargs)
     logger.info(result)
+    issue.edit(state='closed')
     return result
 
 if __name__ == '__main__':
