@@ -15,11 +15,20 @@ from gh_store.core.store import GitHubStore
 from gh_store.core.exceptions import ObjectNotFound
 
 
-
 def clean_links(wikilinks, collect_aliases=False):
-    """canonicalize aliases, standardize case"""
+    """
+    Canonicalize aliases, standardize case.
+    
+    Args:
+        wikilinks: List of wiki links
+        collect_aliases: Whether to collect aliases (not implemented)
+        
+    Returns:
+        List of cleaned wiki links
+    """
     if collect_aliases:
-        raise NotImplemented
+        raise NotImplementedError("Alias collection not implemented yet")
+    
     outv = []
     for link in wikilinks:
         if '|' in link:
@@ -31,12 +40,22 @@ def clean_links(wikilinks, collect_aliases=False):
         outv.append(link.lower())
     return outv
 
-links_pat=re.compile(r"\[\[(.+?)\]\]")
 
 def get_wikilinks(text):
+    """
+    Extract wiki links from text.
+    
+    Args:
+        text: Text to extract links from
+        
+    Returns:
+        List of wiki links
+    """
+    links_pat = re.compile(r"\[\[(.+?)\]\]")
     matches = re.findall(links_pat, text)
     if not matches:
-        return
+        return []
+    
     matches = clean_links(matches)
     logger.info(f"Links detected: {matches}")
     return matches
@@ -44,22 +63,19 @@ def get_wikilinks(text):
 
 def find_missing_wiki_pages(
     source_path: Path,
-    wiki_dir: Path
+    root_dir: Path
 ) -> set[str]:
     """
     Find wiki links in a file that don't have corresponding wiki pages.
     
     Args:
         source_path: Path to the markdown file
-        wiki_dir: Path to the directory containing wiki pages
+        root_dir: Root directory for content
         
     Returns:
         Set of wiki link titles that don't have corresponding files
     """
     logger.info(f"Analyzing file: {source_path}")
-    
-    # Ensure wiki directory exists
-    wiki_dir.mkdir(exist_ok=True, parents=True)
     
     # Read the markdown file
     try:
@@ -69,14 +85,17 @@ def find_missing_wiki_pages(
         return set()
     
     # Extract wiki links
-    links = extract_wiki_links(content)
+    links = get_wikilinks(content)
     logger.info(f"Found {len(links)} wiki links in {source_path}")
     
-    # Filter out links that already have wiki pages
+    # Filter out links that already have corresponding files
     missing_pages = set()
     for link in links:
-        wiki_file = wiki_dir / f"{link}.md"
-        if not wiki_file.exists():
+        # Check for file with the same name anywhere in the root directory
+        # (could be in wiki/ or any other subdirectory)
+        matching_files = list(root_dir.glob(f"**/{link}.md"))
+        
+        if not matching_files:
             missing_pages.add(link)
     
     logger.info(f"Found {len(missing_pages)} missing wiki pages")
@@ -87,7 +106,7 @@ def create_wiki_task(
     topic: str,
     token: str = None,
     repo: str = None,
-    wiki_dir: str = "wiki",
+    output_dir: str = "wiki",
     system_prompt_path: str = "prompts/system_prompt.md",
 ) -> Dict[str, Any]:
     """
@@ -97,7 +116,7 @@ def create_wiki_task(
         topic: Topic to create task for
         token: GitHub token (defaults to GITHUB_TOKEN env var)
         repo: GitHub repository (defaults to GITHUB_REPOSITORY env var)
-        wiki_dir: Wiki directory
+        output_dir: Directory where generated content will be stored
         system_prompt_path: Path to system prompt
         
     Returns:
@@ -114,12 +133,6 @@ def create_wiki_task(
         logger.error("GitHub repository not provided")
         return {"topic": topic, "status": "error", "error": "GitHub repository not provided"}
     
-    # Check if wiki file already exists
-    wiki_path = Path(wiki_dir) / f"{topic}.md"
-    if wiki_path.exists():
-        logger.info(f"Wiki page already exists: {wiki_path}")
-        return {"topic": topic, "status": "exists", "file_path": str(wiki_path)}
-    
     # Initialize the store
     store = GitHubStore(token=token, repo=repo)
     
@@ -128,7 +141,7 @@ def create_wiki_task(
         "operator": "generate_wiki",
         "kwargs": {
             "topic": topic,
-            "wiki_dir": wiki_dir,
+            "output_dir": output_dir,
             "system_prompt_path": system_prompt_path
         },
         "status": "pending"
@@ -156,7 +169,8 @@ def process_file(
     file_path: str,
     token: str = None,
     repo: str = None,
-    wiki_dir: str = "wiki",
+    root_dir: str = ".",
+    output_dir: str = "wiki",
     system_prompt_path: str = "prompts/system_prompt.md",
 ) -> Dict[str, Any]:
     """
@@ -166,7 +180,8 @@ def process_file(
         file_path: Path to markdown file
         token: GitHub token (can also use GITHUB_TOKEN env var)
         repo: GitHub repository (can also use GITHUB_REPOSITORY env var)
-        wiki_dir: Directory to store wiki files
+        root_dir: Root directory to search for existing files
+        output_dir: Directory where generated content will be stored
         system_prompt_path: Path to system prompt file
         
     Returns:
@@ -174,17 +189,19 @@ def process_file(
     """
     logger.info(f"Processing file: {file_path}")
     
-    # Ensure directories exist
-    wiki_dir_path = Path(wiki_dir)
-    wiki_dir_path.mkdir(exist_ok=True, parents=True)
+    # Ensure output directory exists
+    output_path = Path(output_dir)
+    output_path.mkdir(exist_ok=True, parents=True)
     
-    # Get missing wiki pages
+    # Get file path and root directory
     file_path = Path(file_path)
+    root_dir = Path(root_dir)
+    
     if not file_path.exists():
         logger.error(f"File not found: {file_path}")
         return {"file": str(file_path), "status": "error", "error": "File not found"}
     
-    missing_pages = find_missing_wiki_pages(file_path, wiki_dir_path)
+    missing_pages = find_missing_wiki_pages(file_path, root_dir)
     
     # Create tasks for missing pages
     results = []
@@ -193,7 +210,7 @@ def process_file(
             topic=topic,
             token=token,
             repo=repo,
-            wiki_dir=wiki_dir,
+            output_dir=output_dir,
             system_prompt_path=system_prompt_path
         )
         results.append(result)
@@ -211,7 +228,8 @@ def process_changed_files(
     file_paths: List[str],
     token: str = None,
     repo: str = None,
-    wiki_dir: str = "wiki",
+    root_dir: str = ".",
+    output_dir: str = "wiki",
     system_prompt_path: str = "prompts/system_prompt.md",
 ) -> Dict[str, Any]:
     """
@@ -221,7 +239,8 @@ def process_changed_files(
         file_paths: List of file paths to process
         token: GitHub token
         repo: GitHub repository
-        wiki_dir: Wiki directory
+        root_dir: Root directory to search for existing files
+        output_dir: Directory where generated content will be stored
         system_prompt_path: Path to system prompt
         
     Returns:
@@ -239,7 +258,8 @@ def process_changed_files(
                 file_path=file_path,
                 token=token,
                 repo=repo,
-                wiki_dir=wiki_dir,
+                root_dir=root_dir,
+                output_dir=output_dir,
                 system_prompt_path=system_prompt_path
             )
             results.append(result)
