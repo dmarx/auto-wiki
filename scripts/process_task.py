@@ -43,7 +43,7 @@ class TaskConfig:
 def main(config: dict):
     logger.info(config)
     if not isinstance(config, dict):
-      config = json.loads(config)
+        config = ast.literal_eval(config) #config := issue_body
     config = TaskConfig(**config)
     logger.info(config)
     op = OPERATORS[config.operator]
