@@ -138,7 +138,7 @@ def create_wiki_task(
     
     # Task configuration for generating wiki page
     task_config = {
-        "operator": "generate_wiki",
+        "operator": "wiki_article",
         "kwargs": {
             "topic": topic,
             "output_dir": output_dir,
