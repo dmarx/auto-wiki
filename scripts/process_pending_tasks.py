@@ -26,14 +26,14 @@ def get_pending_wiki_tasks():
     g = Github(os.environ["GITHUB_TOKEN"])
     repo = g.get_repo(os.environ["GITHUB_REPOSITORY"])
 
-    pending=[]
     for issue in repo.get_issues(state="open", labels=["task","stored-object"]):
         labels = [label.name for label in issue.labels]
         if "wontfix" in labels:
             continue
-        pending.append(issue)
-    logger.info(f"pending issues: {pending}")
-    return pending
+
+        logger.info(f"processing {issue}")
+        process_issue(issue.number)
+        issue.edit(state='closed')
 
 if __name__ == "__main__":
     get_pending_wiki_tasks()
