@@ -68,9 +68,11 @@ def main(issue_number):
     logger.info(data)
     config = TaskConfig(**data)
     logger.info(config)
+    
     op = OPERATORS[config.operator]
     result = op(**config.kwargs)
     logger.info(result)
+    
     return result
 
 fire.Fire(main)
