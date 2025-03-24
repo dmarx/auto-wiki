@@ -159,7 +159,7 @@ def create_wiki_task(
             # Object doesn't exist, create it
             obj = store.create(topic, task_config)
             # get issue, set  'task' label...
-            issue = store.repo.get_issue(obj.issue_number)
+            issue = store.repo.get_issue(obj.meta.issue_number)
             issue.set_labels('task')
             logger.info(f"Created task for topic: {topic}")
             return {"topic": topic, "status": "created", "object_id": topic}
