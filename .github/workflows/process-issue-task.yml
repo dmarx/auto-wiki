@@ -46,8 +46,7 @@ jobs:
         run: |
           python scripts/process_pending_tasks.py
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ISSUE_NUMBER: ${{ github.event.issue.number }}   
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
 
       - name: Commit changes
         id: commit
