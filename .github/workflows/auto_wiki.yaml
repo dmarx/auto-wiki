@@ -1,4 +1,4 @@
-name: Auto Wiki Generation
+name: Queue Wiki Generation
 
 on:
   workflow_dispatch:  # Manual trigger
@@ -80,40 +80,40 @@ jobs:
         done
 
 
-  # Job 2: Process pending wiki tasks (runs on schedule or manual trigger)
-  process-tasks:
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
-    permissions:
-      issues: write
-      contents: write
+  # # Job 2: Process pending wiki tasks (runs on schedule or manual trigger)
+  # process-tasks:
+  #   if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     issues: write
+  #     contents: write
     
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
+  #   steps:
+  #   - name: Checkout repository
+  #     uses: actions/checkout@v4
+  #     with:
+  #       token: ${{ secrets.GITHUB_TOKEN }}
     
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.12'
+  #   - name: Set up Python
+  #     uses: actions/setup-python@v5
+  #     with:
+  #       python-version: '3.12'
     
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install fire loguru gh-store duckduckgo_search PyGithub
+  #   - name: Install dependencies
+  #     run: |
+  #       python -m pip install --upgrade pip
+  #       pip install fire loguru gh-store duckduckgo_search PyGithub
     
-    - name: Process pending wiki tasks
-      run: |
-        # List pending tasks (for logging)
-        python scripts/process_wiki_tasks.py get_tasks --limit 10
+  #   - name: Process pending wiki tasks
+  #     run: |
+  #       # List pending tasks (for logging)
+  #       python scripts/process_wiki_tasks.py get_tasks --limit 10
         
-        # Process tasks
-        python scripts/process_wiki_tasks.py process --limit 5
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #       # Process tasks
+  #       python scripts/process_wiki_tasks.py process --limit 5
+  #     env:
+  #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - uses: stefanzweifel/git-auto-commit-action@v5
-      with:
-        commit_message: "chore: expanded wiki"
+  #   - uses: stefanzweifel/git-auto-commit-action@v5
+  #     with:
+  #       commit_message: "chore: expanded wiki"
