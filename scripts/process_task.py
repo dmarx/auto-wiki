@@ -41,7 +41,13 @@ def wiki_article(
     content: str,
     prompt_path: str|Path|None = None,
     max_len: int=2048,
+    force: bool|None = False
 ):
+    outpath = Path(f"wiki/{content}.md")
+    if outpath.exists() and (not force):
+        logger.info(f"{outdir} already exists. set `force=True` to overwrite.")
+        return
+        
     response = with_prompt(
         content=content,
         prompt_path=prompt_path,
@@ -49,7 +55,7 @@ def wiki_article(
     )
     logger.info(response)
     result = extract_tag(response, 'content')
-    outpath = Path(f"wiki/{content}.md")
+    
     logger.info(f"writing content to {outpath}")
     with outpath.open('w') as f:
         f.write(result)
@@ -73,6 +79,7 @@ class TaskConfig:
     operator: str
     kwargs: dict
     status: TaskStatus
+    force: bool|None = False
 
 
 def extract_tag(text: str, tag: str = 'content'):
