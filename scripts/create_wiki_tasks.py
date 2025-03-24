@@ -196,6 +196,10 @@ def process_file(
     if not repo:
         logger.error("GitHub repository not provided")
         raise ValueError
+
+    if file_path == 'README.md' or file_path.starts_with('prompts/'):
+        logger.info(f"Skipping ignored path: {filepath}")
+        return
     
     logger.info(f"Processing file: {file_path}")
     
