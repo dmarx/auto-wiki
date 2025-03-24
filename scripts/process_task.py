@@ -14,6 +14,8 @@ from gh_store.cli.commands import get_store
 from gh_store.core.exceptions import AccessDeniedError
 
 from create_wiki_tasks import process_file as queue_new_links
+from llamero.utils import commit_and_push
+
 
 ddg = DDGS()
 
@@ -62,6 +64,7 @@ def wiki_article(
     with outpath.open('w') as f:
         f.write(result)
     queue_new_links(outpath)
+    commit_and_push(outpath)
     return outpath
     
     
