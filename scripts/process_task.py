@@ -115,4 +115,5 @@ def main(issue_number):
     logger.info(result)
     return result
 
-fire.Fire(main)
+if __name__ == '__main__':
+    fire.Fire(main)
