@@ -14,6 +14,8 @@ dependencies = [
     "loguru>=0.6.0",
     "PyGithub>=2.1.0",
     "duckduckgo_search>=3.9.0",
+    "llamero",
+    "gh-store",
 ]
 
 [project.optional-dependencies]
