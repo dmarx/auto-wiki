@@ -4,6 +4,7 @@ on:
   workflow_dispatch:  # Manual trigger
   push:
     branches: [ main ]
+    paths: [ '*.md' ]
   schedule:
     - cron: '*/30 * * * *'  # Run every 30 minutes to process tasks
 
@@ -46,15 +47,15 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Create wiki tasks for all .md files (manual trigger)
+    - name: Create wiki tasks for all files (manual trigger)
       if: github.event_name == 'workflow_dispatch'
       run: |
-        # Find and process all non-wiki markdown files        
-        find . -type f -name "*.md" > md_files.txt
-        cat md_files.txt
-        python scripts/create_wiki_tasks.py process_changed_files $(cat md_files.txt)
+        # Process all markdown files
+        find . -type f -name "*.md" 
+        find . -type f -name "*.md" | xargs python scripts/create_wiki_tasks.py process_changed_files --root_dir="." --output_dir="wiki"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
   # Job 2: Process pending wiki tasks (runs on schedule or manual trigger)
   process-tasks:
