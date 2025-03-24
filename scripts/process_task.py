@@ -31,7 +31,7 @@ def with_prompt(
           prompt = f.read()
   if max_len > 0:
     content=content[:(max_len-len(prompt))]
-    logger.info("content: {content}")
+  logger.info(f"content: {content}")
   msg = prompt.format(content=content) # should probably chunk somehow and iterate over chunks
   logger.info(msg)
   response = ddg.chat(msg)
