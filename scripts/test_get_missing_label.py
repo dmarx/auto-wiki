@@ -1,3 +1,4 @@
+import os
 from github import Github
 
 g = Github(os.environ["GITHUB_TOKEN"])
