@@ -201,7 +201,10 @@ def process_file(
         logger.error("GitHub repository not provided")
         raise ValueError
 
-    if file_path == 'README.md' or file_path.startswith('prompts/'):
+    if not isinstance(file_path, Path):
+        file_path = Path(file_path)
+    
+    if (file_path.name == 'README.md') or (file_path.parent == 'prompts'):
         logger.info(f"Skipping ignored path: {filepath}")
         return
     
@@ -212,7 +215,7 @@ def process_file(
     output_path.mkdir(exist_ok=True, parents=True)
     
     # Get file path and root directory
-    file_path = Path(file_path)
+    #file_path = Path(file_path)
     root_dir = Path(root_dir)
     
     if not file_path.exists():
