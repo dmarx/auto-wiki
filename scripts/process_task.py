@@ -61,6 +61,7 @@ def wiki_article(
 OPERATORS={
     "ddg.chat": ddg.chat,
     "with_prompt": with_prompt,
+    "wiki_article": wiki_article,
 }
 
 class TaskStatus(Enum):
