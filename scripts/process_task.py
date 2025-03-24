@@ -35,7 +35,26 @@ def with_prompt(
   logger.info(msg)
   response = ddg.chat(msg)
   return response
-  
+
+def wiki_article(
+    content: str,
+    prompt_path: str|Path|None = None,
+    max_len: int=1024,
+):
+    response = with_prompt(
+        content=content,
+        prompt_path=prompt_path,
+        max_len=max_len,
+    )
+    logger.info(response)
+    result = extract_tag(response, 'content')
+    outpath = Path(f"wiki/{content}.md")'
+    logger.info(f"writing content to {outpath}")
+    with outpath.open('w') as f:
+        f.write(result)
+    return outpath
+    
+    
 
 # ... should just use locals...
 OPERATORS={
@@ -54,7 +73,17 @@ class TaskConfig:
     status: TaskStatus
 
 
-#def main(config: dict):
+def extract_tag(text: str, tag: str = 'content'):
+    start = f"<{tag}>"
+    end = f"</{tag}>"
+    if start not in text:
+        return None
+    _,text = text.split(start, 1)
+    if end in text:
+        text,_ = text.split(end, 1)
+    return text
+
+
 def main(issue_number):
     store = get_store()
     issue = store.repo.get_issue(issue_number)
@@ -72,7 +101,6 @@ def main(issue_number):
     op = OPERATORS[config.operator]
     result = op(**config.kwargs)
     logger.info(result)
-    
     return result
 
 fire.Fire(main)
