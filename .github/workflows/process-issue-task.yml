@@ -5,7 +5,6 @@ on:
 
 jobs:
   process-task:
-    if: contains(github.event.issue.labels.*.name, 'task')
     runs-on: ubuntu-latest
     permissions:
       issues: write
@@ -29,6 +28,7 @@ jobs:
           fi
           
       - name: Process Task
+        if: contains(github.event_name, 'opened') && contains(github.event.issue.labels.*.name, 'task')
         run: |
           RESULT=$(python scripts/process_task.py --issue-number "$ISSUE_NUMBER")
           gh issue comment "$ISSUE_NUMBER" --body "$RESULT" --repo "$GITHUB_REPOSITORY"
@@ -39,6 +39,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
+
+      - name: Process Task Queue
+        if: github.event_name == 'scheduled' || github.event_name == 'workflow_dispatch'
+        run: |
+          python scripts/process_pending_tasks.py
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}   
 
       - name: Commit changes
         id: commit
