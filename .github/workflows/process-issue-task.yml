@@ -7,6 +7,9 @@ on:
   - cron: '*/15 * * * *'
 
 jobs:
+  concurrency:
+    group: ${{ github.workflow }}
+    cancel-in-progress: false
   process-task:
     runs-on: ubuntu-latest
     permissions:
