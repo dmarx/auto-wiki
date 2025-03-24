@@ -13,6 +13,8 @@ from loguru import logger
 from gh_store.cli.commands import get_store
 from gh_store.core.exceptions import AccessDeniedError
 
+from create_wiki_tasks import process_file as queue_new_links
+
 ddg = DDGS()
 
 with Path("prompts/system_prompt.md").open() as f:
@@ -59,6 +61,7 @@ def wiki_article(
     logger.info(f"writing content to {outpath}")
     with outpath.open('w') as f:
         f.write(result)
+    queue_new_links(outpath)
     return outpath
     
     
