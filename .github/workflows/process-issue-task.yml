@@ -44,7 +44,7 @@ jobs:
           ISSUE_NUMBER: ${{ github.event.issue.number }}
 
       - name: Process Task Queue
-        if: github.event_name == 'scheduled' || github.event_name == 'workflow_dispatch'
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         run: |
           python scripts/process_pending_tasks.py
         env:
