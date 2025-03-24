@@ -157,7 +157,7 @@ def create_wiki_task(
             # Object exists
             logger.info(f"Task already exists for topic: {topic}")
             return {"topic": topic, "status": "existing_task", "object_id": topic}
-        except ObjectNotFound, UnknownObjectException:
+        except (ObjectNotFound, UnknownObjectException):
             # Object doesn't exist, create it
             obj = store.create(topic, task_config)
             # get issue, set  'task' label...
