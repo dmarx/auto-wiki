@@ -33,7 +33,7 @@ def get_pending_wiki_tasks():
 
         logger.info(f"processing {issue}")
         process_issue(issue.number)
-        issue.edit(state='closed')
+        #issue.edit(state='closed')
 
 if __name__ == "__main__":
     get_pending_wiki_tasks()
