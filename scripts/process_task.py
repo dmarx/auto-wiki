@@ -1,7 +1,8 @@
 # scripts/process_task.py
 import ast
 from dataclasses import dataclass
-import json
+from enum import Enum
+#import json
 from pathlib import Path
 
 from duckduckgo_search import DDGS
@@ -38,10 +39,15 @@ OPERATORS={
     "with_prompt": with_prompt,
 }
 
+class TaskStatus(Enum):
+    PENDING = 'pending'
+    COMPLETED = 'completed'
+
 @dataclass
 class TaskConfig:
     operator: str
     kwargs: dict
+    status: TaskStatus
 
 
 #def main(config: dict):
