@@ -10,10 +10,12 @@ from loguru import logger
 
 ddg = DDGS()
 
+with Path("prompts/system_prompt.md").open() as f:
+    SYSTEM_PROMPT = f.read()
 
 def with_prompt(
   target: str|Path,
-  prompt: str="summarize the following:\n\n {content}",
+  prompt: str=SYSTEM_PROMPT,
   max_len: int=1024,
 ):
   with Path(target).open() as f:
