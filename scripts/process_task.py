@@ -49,7 +49,7 @@ def wiki_article(
 ):
     outpath = Path(f"wiki/{content}.md")
     if outpath.exists() and (not force):
-        logger.info(f"{outdir} already exists. set `force=True` to overwrite.")
+        logger.info(f"{outpath} already exists. set `force=True` to overwrite.")
         return
         
     response = with_prompt(
