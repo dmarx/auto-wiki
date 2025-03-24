@@ -1,7 +1,8 @@
-name: Process Task From Issue Trigger
+name: Process Task(s)
 on:
   issues:
     types: [opened, reopened]
+  workflow_dispatch:
 
 jobs:
   process-task:
