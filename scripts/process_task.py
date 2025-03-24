@@ -1,4 +1,5 @@
 # scripts/process_task.py
+import ast
 from dataclasses import dataclass
 import json
 from pathlib import Path
