@@ -26,6 +26,22 @@ def get_pending_wiki_tasks():
     g = Github(os.environ["GITHUB_TOKEN"])
     repo = g.get_repo(os.environ["GITHUB_REPOSITORY"])
 
+    # start with prioritized tasks first
+    for issue in repo.get_issues(
+        state="open", 
+        labels=["task","stored-object","prioritized"],
+        sort='created',
+        direction='asc',
+    ):
+        labels = [label.name for label in issue.labels]
+        if "wontfix" in labels:
+            continue
+        logger.info(f"[PRIORITY] processing {issue}")
+        process_issue(issue.number)
+
+    # after going through all the priority stuff, rebuild the queue
+    # this time, we hold out low-priority
+    deprioritized=[]
     for issue in repo.get_issues(
         state="open", 
         labels=["task","stored-object"],
@@ -35,9 +51,17 @@ def get_pending_wiki_tasks():
         labels = [label.name for label in issue.labels]
         if "wontfix" in labels:
             continue
+        if "deprioritized" in labels:
+            deprioritized.append(issue)
+            continue
         logger.info(f"processing {issue}")
         process_issue(issue.number)
-        #issue.edit(state='closed')
+
+    # finally, if we ever make it down this far: process the deprioritized stuff.
+    for issue in deprioritized:
+        logger.info(f"[LOW PRIORITY] processing {issue}")
+        process_issue(issue.number)
+    
 
 if __name__ == "__main__":
     get_pending_wiki_tasks()
