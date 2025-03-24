@@ -1,1 +1,1 @@
-see also: [[hello world]].
+see also: [[hello world]], [[dissipative structure]]
