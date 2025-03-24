@@ -1,5 +1,5 @@
 import os
-from github import Github
+from github import Github, UnknownObjectException
 
 g = Github(os.environ["GITHUB_TOKEN"])
 repo = g.get_repo(os.environ["GITHUB_REPOSITORY"])
