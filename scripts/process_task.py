@@ -48,7 +48,7 @@ def wiki_article(
     )
     logger.info(response)
     result = extract_tag(response, 'content')
-    outpath = Path(f"wiki/{content}.md")'
+    outpath = Path(f"wiki/{content}.md")
     logger.info(f"writing content to {outpath}")
     with outpath.open('w') as f:
         f.write(result)
