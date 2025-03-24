@@ -40,7 +40,7 @@ def with_prompt(
 def wiki_article(
     content: str,
     prompt_path: str|Path|None = None,
-    max_len: int=1024,
+    max_len: int=2048,
 ):
     response = with_prompt(
         content=content,
