@@ -190,12 +190,12 @@ def process_file(
     token = token or os.environ.get("GITHUB_TOKEN")
     if not token:
         logger.error("GitHub token not provided")
-        return {"topic": topic, "status": "error", "error": "GitHub token not provided"}
+        raise ValueError
     
     repo = repo or os.environ.get("GITHUB_REPOSITORY")
     if not repo:
         logger.error("GitHub repository not provided")
-        return {"topic": topic, "status": "error", "error": "GitHub repository not provided"}
+        raise ValueError
     
     logger.info(f"Processing file: {file_path}")
     
@@ -209,7 +209,7 @@ def process_file(
     
     if not file_path.exists():
         logger.error(f"File not found: {file_path}")
-        return {"file": str(file_path), "status": "error", "error": "File not found"}
+        raise ValueError
     
     missing_pages = find_missing_wiki_pages(file_path, root_dir)
     
@@ -259,12 +259,12 @@ def process_changed_files(
     token = token or os.environ.get("GITHUB_TOKEN")
     if not token:
         logger.error("GitHub token not provided")
-        return {"topic": topic, "status": "error", "error": "GitHub token not provided"}
+        raise ValueError
     
     repo = repo or os.environ.get("GITHUB_REPOSITORY")
     if not repo:
         logger.error("GitHub repository not provided")
-        return {"topic": topic, "status": "error", "error": "GitHub repository not provided"}
+        raise ValueError
     
     logger.info(f"Processing {len(file_paths)} files")
     logger.info(f"{file_paths}")
