@@ -19,12 +19,11 @@ with Path("prompts/system_prompt.md").open() as f:
     SYSTEM_PROMPT = f.read()
 
 def with_prompt(
-  target: str|Path,
+  content: str,
   prompt: str=SYSTEM_PROMPT,
   max_len: int=1024,
 ):
-  with Path(target).open() as f:
-    content = f.read()
+  
   if max_len > 0:
     content=content[:(max_len-len(prompt))]
   msg = prompt.format(content=content) # should probably chunk somehow and iterate over chunks
