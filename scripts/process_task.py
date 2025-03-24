@@ -10,7 +10,7 @@ import fire
 from loguru import logger
 
 from gh_store.cli.commands import get_store
-from gh_store.exceptions import AccessDeniedError
+from gh_store.core.exceptions import AccessDeniedError
 
 ddg = DDGS()
 
