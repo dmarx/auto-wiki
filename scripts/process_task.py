@@ -9,6 +9,9 @@ import fire
 #from gh_store.core.access import AccessControl
 from loguru import logger
 
+from gh_store.cli.commands import get_store
+from gh_store.exceptions import AccessDeniedError
+
 ddg = DDGS()
 
 with Path("prompts/system_prompt.md").open() as f:
@@ -41,11 +44,19 @@ class TaskConfig:
     kwargs: dict
 
 
-def main(config: dict):
-    logger.info(config)
-    if not isinstance(config, dict):
-        config = ast.literal_eval(config) #config := issue_body
-    config = TaskConfig(**config)
+#def main(config: dict):
+def main(issue_number):
+    store = get_store()
+    issue = store.repo.get_issue(issue_number)
+    if not store.access_control.validate_issue_creator(issue):
+        raise AccessDeniedError(
+                "Tasks can only be processed for issues created by "
+                "repository owner or authorized CODEOWNERS"
+            )
+    logger.info(issue)
+    data = ast.literal_eval(issue.body)
+    logger.info(data)
+    config = TaskConfig(**data)
     logger.info(config)
     op = OPERATORS[config.operator]
     result = op(**config.kwargs)
