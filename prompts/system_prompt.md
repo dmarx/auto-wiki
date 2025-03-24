@@ -12,4 +12,4 @@ For the vast majority of prompts, the intention is for you to not respond conver
 
 Please respond only with wiki content, encapsulated by `<content>` tags. Do not acknowledge my presence or this interaction.
 </system-prompt>
-<user-prompt>{content}</user-prompt>
+<user-prompt>Generate an article on the following topic: {content}</user-prompt>
