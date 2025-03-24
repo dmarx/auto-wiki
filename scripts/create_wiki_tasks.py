@@ -161,8 +161,9 @@ def create_wiki_task(
             logger.info(f"Created task for topic: {topic}")
             return {"topic": topic, "status": "created", "object_id": topic}
     except Exception as e:
-        logger.error(f"Error creating task: {str(e)}")
-        return {"topic": topic, "status": "error", "error": str(e)}
+        #logger.error(f"Error creating task: {str(e)}")
+        raise e
+        #return {"topic": topic, "status": "error", "error": str(e)}
 
 
 def process_file(
