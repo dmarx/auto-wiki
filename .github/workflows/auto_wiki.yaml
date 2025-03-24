@@ -39,22 +39,41 @@ jobs:
         files: |
           **/*.md
     
+    # - name: Create wiki tasks for changed files
+    #   if: github.event_name == 'push'
+    #   run: |
+    #     echo "Changed files: ${{ steps.changed-files.outputs.all_changed_files }}"
+    #     python scripts/create_wiki_tasks.py process_changed_files ${{ steps.changed-files.outputs.all_changed_files }}
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    # - name: Create wiki tasks for all files (manual trigger)
+    #   if: github.event_name == 'workflow_dispatch'
+    #   run: |
+    #     # Process all markdown files
+    #     find . -type f -name "*.md" 
+    #     find . -type f -name "*.md" | xargs python scripts/create_wiki_tasks.py process_changed_files --root_dir="." --output_dir="wiki"
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
     - name: Create wiki tasks for changed files
-      if: github.event_name == 'push'
+      if: github.event_name == 'push' || github.event_name == 'pull_request'
       run: |
         echo "Changed files: ${{ steps.changed-files.outputs.all_changed_files }}"
-        python scripts/create_wiki_tasks.py process_changed_files ${{ steps.changed-files.outputs.all_changed_files }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        files="${{ steps.changed-files.outputs.all_changed_files }}"
+        # Process each file individually
+        for file in $files; do
+          python scripts/create_wiki_tasks.py process_file "$file" --root_dir="." --output_dir="wiki"
+        done
 
     - name: Create wiki tasks for all files (manual trigger)
       if: github.event_name == 'workflow_dispatch'
       run: |
-        # Process all markdown files
-        find . -type f -name "*.md" 
-        find . -type f -name "*.md" | xargs python scripts/create_wiki_tasks.py process_changed_files --root_dir="." --output_dir="wiki"
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # Process all markdown files individually
+        find . -type f -name "*.md" | while read file; do
+          python scripts/create_wiki_tasks.py process_file "$file" --root_dir="." --output_dir="wiki"
+        done
 
 
   # Job 2: Process pending wiki tasks (runs on schedule or manual trigger)
