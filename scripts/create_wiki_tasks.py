@@ -140,9 +140,7 @@ def create_wiki_task(
     task_config = {
         "operator": "wiki_article",
         "kwargs": {
-            "topic": topic,
-            "output_dir": output_dir,
-            "system_prompt_path": system_prompt_path
+            "content": topic,
         },
         "status": "pending"
     }
