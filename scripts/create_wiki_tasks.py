@@ -187,6 +187,16 @@ def process_file(
     Returns:
         Dictionary with processing results
     """
+    token = token or os.environ.get("GITHUB_TOKEN")
+    if not token:
+        logger.error("GitHub token not provided")
+        return {"topic": topic, "status": "error", "error": "GitHub token not provided"}
+    
+    repo = repo or os.environ.get("GITHUB_REPOSITORY")
+    if not repo:
+        logger.error("GitHub repository not provided")
+        return {"topic": topic, "status": "error", "error": "GitHub repository not provided"}
+    
     logger.info(f"Processing file: {file_path}")
     
     # Ensure output directory exists
@@ -246,6 +256,16 @@ def process_changed_files(
     Returns:
         Dictionary with processing results
     """
+    token = token or os.environ.get("GITHUB_TOKEN")
+    if not token:
+        logger.error("GitHub token not provided")
+        return {"topic": topic, "status": "error", "error": "GitHub token not provided"}
+    
+    repo = repo or os.environ.get("GITHUB_REPOSITORY")
+    if not repo:
+        logger.error("GitHub repository not provided")
+        return {"topic": topic, "status": "error", "error": "GitHub repository not provided"}
+    
     logger.info(f"Processing {len(file_paths)} files")
     logger.info(f"{file_paths}")
     
