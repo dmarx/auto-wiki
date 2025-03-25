@@ -13,7 +13,7 @@ from github import Github
 
 
 # min seconds between requests
-CADENCE=45
+CADENCE=60
 
 
 LAST_REQUEST=time.time()-CADENCE
