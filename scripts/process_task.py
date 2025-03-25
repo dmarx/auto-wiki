@@ -38,7 +38,7 @@ def with_prompt(
   logger.info(f"content: {content}")
   msg = prompt.format(content=content) # should probably chunk somehow and iterate over chunks
   logger.info(msg)
-  response = ddg.chat(msg, model='llama-3.3-70b') # changing model to see if that impacts rate limit availability
+  response = ddg.chat(msg)
   return response
 
 def wiki_article(
