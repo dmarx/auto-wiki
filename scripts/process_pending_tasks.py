@@ -13,7 +13,8 @@ from github import Github
 
 
 # min seconds between requests
-CADENCE=60
+CADENCE=120
+# TODO: handle crashes with backoff...
 
 
 LAST_REQUEST=time.time()-CADENCE
