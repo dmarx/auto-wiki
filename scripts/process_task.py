@@ -17,7 +17,7 @@ from create_wiki_tasks import process_file as queue_new_links
 from llamero.utils import commit_and_push
 
 
-ddg = DDGS()
+ddg = DDGS(headers={"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.3"})
 
 with Path("prompts/system_prompt.md").open() as f:
     SYSTEM_PROMPT = f.read()
