@@ -3,17 +3,7 @@
 Process wiki tasks from gh-store and generate content.
 """
 
-# import json
-# import os
-# import subprocess
-# from pathlib import Path
-# from typing import Dict, Any, List
-# from datetime import datetime, timezone
-
-#import fire
 from loguru import logger
-#from gh_store.core.store import GitHubStore
-
 from process_task import main as process_issue
 
 import os
@@ -23,8 +13,10 @@ from github import Github
 
 
 # min seconds between requests
-CADENCE=30
-LAST_REQUEST=time.time()-30
+CADENCE=45
+
+
+LAST_REQUEST=time.time()-CADENCE
 
 def handle_wait():
     global LAST_REQUEST
