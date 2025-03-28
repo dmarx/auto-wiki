@@ -123,6 +123,11 @@ def create_wiki_task(
     Returns:
         Dictionary with result information
     """
+
+    if len(f"UID:{topic.strip()}") > 50:
+        logger.warning(f"Topic too long for GH label. Skipping creation of task for: {topic.strip()}")
+        return
+    
     # Get token and repo from environment if not provided
     token = token or os.environ.get("GITHUB_TOKEN")
     if not token:
