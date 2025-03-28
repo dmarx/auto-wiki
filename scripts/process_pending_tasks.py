@@ -13,7 +13,7 @@ from github import Github
 
 
 # min seconds between requests
-CADENCE=90
+CADENCE=120
 # TODO: handle crashes with backoff...
 
 
