@@ -3,8 +3,8 @@ on:
   issues:
     types: [opened, reopened]
   workflow_dispatch:
-  schedule:
-  - cron: '47 */5 * * *'
+  # schedule:
+  # - cron: '47 */5 * * *'
 
 concurrency:
   group: ${{ github.workflow }}
